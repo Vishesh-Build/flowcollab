@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom";
 
 const scrollToHowItWorks = () => {
@@ -74,7 +73,7 @@ export default function LandingPage() {
           <span style={{ fontSize: 15, fontWeight: 500, letterSpacing: "-0.2px" }}>FlowCollab</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
-          
+          {/* ✅ FIX: Features & How it works — scroll to section */}
           <span className="fc-nav-item" onClick={scrollToHowItWorks} style={{ fontSize: 13, color: "rgba(255,255,255,0.4)" }}>Features</span>
           <span className="fc-nav-item" onClick={scrollToHowItWorks} style={{ fontSize: 13, color: "rgba(255,255,255,0.4)" }}>How it works</span>
         </div>
@@ -95,7 +94,7 @@ export default function LandingPage() {
           <span style={{ color: "rgba(255,255,255,0.22)" }}>Zero conflicts.</span>
         </h1>
         <p className="a3" style={{ fontSize: 15, color: "rgba(255,255,255,0.38)", maxWidth: 460, lineHeight: 1.8, marginBottom: 32, fontWeight: 300 }}>
-          What if your whole team shared one AI brain? That's FlowCollab it's free, private, instant.
+          Multiple developers. Shared AI. Real-time code collaboration — powered by your own Claude, GPT-4, or Gemini key. Free and private.
         </p>
         <div className="a4" style={{ display: "flex", gap: 10 }}>
           <button className="fc-btn" onClick={() => navigate("/signup")} style={{ background: "white", color: "black", border: "none", borderRadius: 6, padding: "11px 26px", fontSize: 13, fontWeight: 500, cursor: "pointer", display: "flex", alignItems: "center", gap: 7 }}>
@@ -166,7 +165,7 @@ export default function LandingPage() {
                 </div>
               </div>
               <div style={{ background: "#0d0d0d", padding: 14, fontFamily: "'SF Mono','Fira Code',monospace", fontSize: 11, lineHeight: 1.85, overflow: "hidden" }}>
-                <div style={{ color: "rgba(255,255,255,0.18)" }}>1 &nbsp;<span style={{ color: "#5a5a5a" }}>// auth.js — JWT implementation</span></div>
+                <div style={{ color: "rgba(255,255,255,0.18)" }}>1 &nbsp;<span style={{ color: "#5a5a5a" }}>{/* auth.js */} JWT implementation</span></div>
                 <div>2 &nbsp;<span style={{ color: "#569cd6" }}>const</span> <span style={{ color: "#9cdcfe" }}>jwt</span> <span style={{ color: "rgba(255,255,255,0.4)" }}>=</span> <span style={{ color: "#ce9178" }}>require</span><span style={{ color: "rgba(255,255,255,0.35)" }}>('jsonwebtoken')</span></div>
                 <div style={{ color: "rgba(255,255,255,0.18)" }}>3</div>
                 {[4, 5, 6, 7].map(n => (
@@ -270,7 +269,7 @@ export default function LandingPage() {
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <span style={{ fontSize: 12, color: "rgba(255,255,255,0.2)" }}>Made with</span>
-          <span style={{ fontSize: 14 }}>⌨️</span>
+          <span style={{ fontSize: 14 }}>❤️</span>
           <span style={{ fontSize: 12, color: "rgba(255,255,255,0.2)" }}>by</span>
           <span style={{ fontSize: 12, fontWeight: 500, color: "rgba(255,255,255,0.55)", letterSpacing: "-0.2px" }}>Vishesh Barot</span>
         </div>
