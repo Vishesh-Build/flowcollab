@@ -74,7 +74,7 @@ export default function LandingPage() {
           <span style={{ fontSize: 15, fontWeight: 500, letterSpacing: "-0.2px" }}>FlowCollab</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
-          {/* ✅ FIX: Features & How it works — scroll to section */}
+          
           <span className="fc-nav-item" onClick={scrollToHowItWorks} style={{ fontSize: 13, color: "rgba(255,255,255,0.4)" }}>Features</span>
           <span className="fc-nav-item" onClick={scrollToHowItWorks} style={{ fontSize: 13, color: "rgba(255,255,255,0.4)" }}>How it works</span>
         </div>

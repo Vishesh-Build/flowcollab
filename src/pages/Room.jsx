@@ -452,7 +452,7 @@ export default function Room() {
   const sanitizeFileName = useCallback((name) => {
     // Firebase key: saare special chars + dot bhi replace karo
     return name
-      .replace(/[#$\[\]\.\s]/g, '_')
+      .replace(/[#$[\].\s]/g, '_')
       .replace(/_+/g, '_')
       .replace(/^_|_$/g, '')
       .slice(0, 100) || 'untitled';

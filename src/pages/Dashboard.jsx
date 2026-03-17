@@ -44,7 +44,7 @@ export default function Dashboard() {
       }
     });
     return () => unsubscribe();
-  }, []);
+  }, [navigate]);
 
   const handleLogout = async () => {
     await signOut(auth);
