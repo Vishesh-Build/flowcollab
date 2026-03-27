@@ -6,6 +6,40 @@ const scrollToHowItWorks = () => {
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const isMobile = window.innerWidth < 768;
+
+<div style={{ display: "flex", gap: isMobile ? 6 : 10, alignItems: "center" }}>
+  <button
+    onClick={() => navigate("/login")}
+    style={{
+      background: "none",
+      border: "none",
+      color: "rgba(255,255,255,0.45)",
+      fontSize: isMobile ? 12 : 13,
+      cursor: "pointer",
+      padding: isMobile ? "4px 6px" : "6px 14px"
+    }}
+  >
+    Login
+  </button>
+
+  <button
+    className="fc-btn"
+    onClick={() => navigate("/signup")}
+    style={{
+      background: "white",
+      color: "black",
+      border: "none",
+      borderRadius: 6,
+      padding: isMobile ? "5px 10px" : "7px 16px",
+      fontSize: isMobile ? 12 : 13,
+      fontWeight: 500,
+      cursor: "pointer"
+    }}
+  >
+    Get started
+  </button>
+</div>
 
   return (
     <div style={{ background: "#000", minHeight: "100vh", fontFamily: "'SF Pro Display',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif", color: "white", overflowX: "hidden", position: "relative" }}>
@@ -72,7 +106,14 @@ export default function LandingPage() {
           </svg>
           <span style={{ fontSize: 15, fontWeight: 500, letterSpacing: "-0.2px" }}>FlowCollab</span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
+        <div
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: 20,
+  }}
+  className="nav-links"
+>
           {/* ✅ FIX: Features & How it works — scroll to section */}
           <span className="fc-nav-item" onClick={scrollToHowItWorks} style={{ fontSize: 13, color: "rgba(255,255,255,0.4)" }}>Features</span>
           <span className="fc-nav-item" onClick={scrollToHowItWorks} style={{ fontSize: 13, color: "rgba(255,255,255,0.4)" }}>How it works</span>
