@@ -385,7 +385,7 @@ const EditorPanel = memo(({ activeFile, activeFileContent, files, onCodeChange, 
   const [showStdinModal, setShowStdinModal] = useState(false);
   const [stdinValue, setStdinValue] = useState("");
   const [pendingRun, setPendingRun] = useState(null); // { ext, forAll }
-  const outputResizeRef = useRef(null);
+  
 
   const JUDGE0_LANG = {
     py: 71, js: 63, jsx: 63, ts: 74, tsx: 74,
