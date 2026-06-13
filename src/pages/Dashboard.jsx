@@ -1,9 +1,9 @@
-
 import { useEffect, useState } from "react";
 import { auth, db } from "../firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { ref, push, serverTimestamp, set, get, onValue, remove } from "firebase/database";
+import { useToast } from "../hooks/useToast";
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
@@ -11,11 +11,11 @@ export default function Dashboard() {
   const [creating, setCreating] = useState(false);
   const [apiKey, setApiKey] = useState("");
   const [apiProvider, setApiProvider] = useState("groq");
-  const [keySaved, setKeySaved] = useState(false);
-  const [keyError, setKeyError] = useState("");
   const [myRooms, setMyRooms] = useState([]);
   const [deletingRoom, setDeletingRoom] = useState(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const navigate = useNavigate();
+  const toast = useToast();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -68,23 +68,35 @@ export default function Dashboard() {
     navigate(`/room/${roomCode.trim()}`);
   };
 
-  // ✅ Room delete karo
-  const handleDeleteRoom = async (e, roomId) => {
+  // Step 1: arm the delete (show inline confirm)
+  const handleDeleteArm = (e, roomId) => {
     e.stopPropagation();
-    if (!window.confirm("Are you sure? This will permanently delete the room and all its files.")) return;
+    setConfirmDeleteId(roomId);
+  };
+
+  // Step 2: confirmed — actually delete
+  const handleDeleteConfirm = async (e, roomId) => {
+    e.stopPropagation();
+    setConfirmDeleteId(null);
     setDeletingRoom(roomId);
     try {
       await remove(ref(db, `rooms/${roomId}`));
+      toast.success("Room deleted.");
     } catch (err) {
       console.error("Delete room error:", err);
+      toast.error("Failed to delete room — please try again.");
     }
     setDeletingRoom(null);
   };
 
+  // Cancel the armed state
+  const handleDeleteCancel = (e) => {
+    e.stopPropagation();
+    setConfirmDeleteId(null);
+  };
+
   const handleSaveKey = async () => {
     if (!apiKey.trim()) return;
-    setKeySaved(false);
-    setKeyError("");
     let isValid = false;
     let errorMsg = "";
 
@@ -147,11 +159,9 @@ export default function Dashboard() {
     if (isValid) {
       const keyRef = ref(db, `users/${user.uid}/apiKey`);
       await set(keyRef, { provider: apiProvider, key: apiKey, updatedAt: serverTimestamp() });
-      setKeySaved(true);
-      setKeyError("");
-      setTimeout(() => setKeySaved(false), 3000);
+      toast.success("API key saved and verified.");
     } else {
-      setKeyError(errorMsg);
+      toast.error(errorMsg || "Invalid API key.");
     }
   };
 
@@ -180,6 +190,12 @@ export default function Dashboard() {
         .copy-btn:hover { color: rgba(255,255,255,0.6); }
         .del-room-btn { opacity: 0; background: rgba(255,95,87,0.08); border: 1px solid rgba(255,95,87,0.2); border-radius: 4px; padding: 3px 8px; font-size: 10px; color: rgba(255,95,87,0.6); cursor: pointer; transition: all .15s; white-space: nowrap; }
         .del-room-btn:hover { background: rgba(255,95,87,0.2); color: #ff5f57; }
+        .del-confirm-wrap { display: flex; align-items: center; gap: 6px; animation: fadeIn 0.15s ease; }
+        .del-confirm-label { font-size: 11px; color: rgba(255,95,87,0.8); white-space: nowrap; }
+        .del-confirm-yes { background: rgba(255,95,87,0.15); border: 1px solid rgba(255,95,87,0.35); border-radius: 4px; padding: 3px 10px; font-size: 11px; color: #ff5f57; cursor: pointer; transition: all .15s; white-space: nowrap; font-weight: 500; }
+        .del-confirm-yes:hover { background: rgba(255,95,87,0.28); }
+        .del-confirm-no { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 3px 10px; font-size: 11px; color: rgba(255,255,255,0.4); cursor: pointer; transition: all .15s; white-space: nowrap; }
+        .del-confirm-no:hover { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); }
         .a1 { animation: fadeUp 0.4s ease 0.1s both; }
         .a2 { animation: fadeUp 0.4s ease 0.2s both; }
         .a3 { animation: fadeUp 0.4s ease 0.3s both; }
@@ -283,8 +299,14 @@ export default function Dashboard() {
           </div>
 
           {myRooms.length === 0 ? (
-            <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 8, padding: "24px", textAlign: "center" }}>
-              <p style={{ fontSize: 12.5, color: "rgba(255,255,255,0.2)" }}>No rooms yet — create your first one above!</p>
+            <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 8, padding: "32px 24px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+              <div style={{ width: 36, height: 36, background: "rgba(255,255,255,0.06)", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <svg width="16" height="16" viewBox="0 0 22 22" fill="none">
+                  <polygon points="11,2 20,7 20,15 11,20 2,15 2,7" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" fill="none" />
+                  <circle cx="11" cy="11" r="2" fill="rgba(255,255,255,0.3)" />
+                </svg>
+              </div>
+              <p style={{ fontSize: 12.5, color: "rgba(255,255,255,0.25)" }}>No rooms yet — create your first one above!</p>
             </div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -311,21 +333,36 @@ export default function Dashboard() {
                             el.select();
                             document.execCommand("copy");
                             document.body.removeChild(el);
-                            alert("Invite link copied!");
-                          } catch(err) { alert("Link: " + link); }
+                            toast.success("Invite link copied to clipboard.");
+                          } catch(err) { toast.info("Link: " + link); }
                         }}>📋 copy link</button>
                       </div>
                     </div>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    {/* ✅ Delete button */}
-                    <button
-                      className="del-room-btn"
-                      onClick={(e) => handleDeleteRoom(e, room.id)}
-                      disabled={deletingRoom === room.id}
-                    >
-                      {deletingRoom === room.id ? "Deleting..." : "🗑 Delete"}
-                    </button>
+                    {confirmDeleteId === room.id ? (
+                      <div className="del-confirm-wrap" onClick={e => e.stopPropagation()}>
+                        <span className="del-confirm-label">Delete forever?</span>
+                        <button
+                          className="del-confirm-yes"
+                          onClick={(e) => handleDeleteConfirm(e, room.id)}
+                          disabled={deletingRoom === room.id}
+                        >
+                          {deletingRoom === room.id ? "Deleting…" : "Yes, delete"}
+                        </button>
+                        <button className="del-confirm-no" onClick={handleDeleteCancel}>
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        className="del-room-btn"
+                        onClick={(e) => handleDeleteArm(e, room.id)}
+                        disabled={deletingRoom === room.id}
+                      >
+                        🗑 Delete
+                      </button>
+                    )}
                     <button className="open-btn" onClick={(e) => { e.stopPropagation(); navigate(`/room/${room.id}`); }}>
                       Open →
                     </button>
@@ -360,15 +397,10 @@ export default function Dashboard() {
             <input type="password" placeholder="API key..." value={apiKey} onChange={e => setApiKey(e.target.value)}
               style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 6, padding: "8px 12px", fontSize: 12.5, color: "white", outline: "none", flex: 1 }} />
             <button onClick={handleSaveKey}
-              style={{ background: keySaved ? "#28c840" : "white", color: "black", border: "none", borderRadius: 6, padding: "8px 18px", fontSize: 12.5, fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap", transition: "background .3s" }}>
-              {keySaved ? "Saved ✓" : "Save key"}
+              style={{ background: "white", color: "black", border: "none", borderRadius: 6, padding: "8px 18px", fontSize: 12.5, fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap" }}>
+              Save key
             </button>
           </div>
-          {keyError && (
-            <div style={{ marginTop: 10, fontSize: 12, color: "rgba(255,100,100,0.9)", background: "rgba(255,95,87,0.08)", border: "1px solid rgba(255,95,87,0.2)", borderRadius: 6, padding: "8px 12px" }}>
-              {keyError}
-            </div>
-          )}
         </div>
       </div>
     </div>
